@@ -10,7 +10,6 @@ import com.itextpdf.layout.element.Link;
 import com.itextpdf.layout.element.Paragraph;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 

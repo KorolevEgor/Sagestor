@@ -39,7 +39,12 @@ public class LinksSuggester {
                 }
 
                 String keyWord = words.get(0).toLowerCase(Locale.ROOT);
-                suggests.put(keyWord, new Suggest(keyWord, titleSB.toString(), url));
+                suggests.put(
+                        keyWord,
+                        Suggest.builder()
+                                .keyWord(keyWord)
+                                .title(titleSB.toString())
+                                .url(url).build());
             }
         }
     }
