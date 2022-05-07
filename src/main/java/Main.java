@@ -11,46 +11,60 @@ import com.itextpdf.layout.element.Paragraph;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public class Main {
+    private static String pathnameOut = "data/pdfs/";
+    private static String pathnameIn = "data/converted/";
+
     public static void main(String[] args) throws Exception {
-        // создаём конфиг
         LinksSuggester linksSuggester = new LinksSuggester(new File("data/config"));
-//        System.out.println(linksSuggester.suggest("Тестовый текст. Класс, джава; объект. Spring"));
 
-        var dir = new File("data/pdfs");
+        File dir = new File(pathnameOut);
         // обход pdf в data/pdfs
-        for (var fileIn : dir.listFiles()) {
-            File fileOut = new File("data/converted/" + fileIn.getName());
-            var doc = new PdfDocument(new PdfReader(fileIn), new PdfWriter(fileOut));
-            // обход всех страниц документа
-            for (int i = 0; i < doc.getNumberOfPages(); i++) {
-                List<Suggest> suggestList = linksSuggester.suggest(PdfTextExtractor.getTextFromPage(doc.getPage(i + 1)));
-                // если на текущей странице не встретилось ни одно ключевое слово
-                if (suggestList.isEmpty())
-                    continue;
+        for (File fileIn : Objects.requireNonNull(dir.listFiles())) {
+            // открытие (или создание) файла на запись
+            File fileOut = new File(pathnameIn + fileIn.getName());
 
-                // создание новой страницы
-                var newPage = doc.addNewPage(i + 2);
-                i++;
+            try (var doc = new PdfDocument(new PdfReader(fileIn), new PdfWriter(fileOut))) {
+                // обход всех страниц документа
+                for (int i = 0; i < doc.getNumberOfPages(); i++) {
+                    // получение списка Suggest по тексту страницы
+                    List<Suggest> suggestList = linksSuggester.suggest(
+                            PdfTextExtractor.getTextFromPage(doc.getPage(i + 1)));
+                    // если на текущей странице не встретилось ни одно ключевое слово
+                    if (suggestList.isEmpty())
+                        continue;
 
-                var rect = new Rectangle(newPage.getPageSize()).moveRight(10).moveDown(10);
-                Canvas canvas = new Canvas(newPage, rect);
-                Paragraph paragraph = new Paragraph("Suggestions:\n");
-                paragraph.setFontSize(25);
-
-                for (int j = 0; j < suggestList.size(); ++j) {
-                    PdfLinkAnnotation annotation = new PdfLinkAnnotation(rect);
-                    PdfAction action = PdfAction.createURI(suggestList.get(j).getUrl());
-                    annotation.setAction(action);
-                    Link link = new Link(suggestList.get(j).getTitle(), annotation);
-                    paragraph.add(link.setUnderline());
-                    paragraph.add("\n");
+                    addSuggestPage(doc, i, suggestList);
+                    // i увеличивается так как добавилась новая страница
+                    i++;
                 }
-                canvas.add(paragraph);
-                canvas.close();
             }
-            doc.close();
         }
+    }
+
+    private static void addSuggestPage(PdfDocument doc, int pageNumber, List<Suggest> suggestList) {
+        // создание новой страницы
+        var newPage = doc.addNewPage(pageNumber + 2);
+
+        // создание области редактирования
+        var rect = new Rectangle(newPage.getPageSize()).moveRight(10).moveDown(10);
+        Canvas canvas = new Canvas(newPage, rect);
+
+        Paragraph paragraph = new Paragraph("Suggestions:\n");
+        paragraph.setFontSize(25);
+
+        // добавление ссылок
+        for (Suggest suggest : suggestList) {
+            PdfLinkAnnotation annotation = new PdfLinkAnnotation(rect);
+            PdfAction action = PdfAction.createURI(suggest.getUrl());
+            annotation.setAction(action);
+            Link link = new Link(suggest.getTitle(), annotation);
+            paragraph.add(link.setUnderline());
+            paragraph.add("\n");
+        }
+        canvas.add(paragraph);
+        canvas.close();
     }
 }
