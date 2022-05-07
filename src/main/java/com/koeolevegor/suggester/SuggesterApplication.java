@@ -1,15 +1,9 @@
 package com.koeolevegor.suggester;
 
-import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.action.PdfAction;
-import com.itextpdf.kernel.pdf.annot.PdfLinkAnnotation;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
-import com.itextpdf.layout.Canvas;
-import com.itextpdf.layout.element.Link;
-import com.itextpdf.layout.element.Paragraph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,8 +20,12 @@ public class SuggesterApplication {
     private static String pathnameIn = "data/converted/";
     private static String pathnameConfig = "data/config";
 
-    @Autowired
     private static ApplicationContext context;
+
+    @Autowired
+    public void setContext(ApplicationContext context) {
+        SuggesterApplication.context = context;
+    }
 
     public static void main(String[] args) throws Exception {
         if (args.length == 3) {
@@ -40,7 +38,10 @@ public class SuggesterApplication {
     }
 
     private static void runSuggester(String pathnameConfig) throws IOException {
-        LinksSuggester linksSuggester = new LinksSuggester(new File(pathnameConfig));
+        LinksSuggester linksSuggester = context.getBean(LinksSuggester.class);
+        linksSuggester.configure(new File(pathnameConfig));
+        SuggestWriter suggestWriter = context.getBean(SuggestWriter.class);
+//        LinksSuggester linksSuggester = new LinksSuggester(new File(pathnameConfig));
 
         File dir = new File(pathnameOut);
         // обход pdf в data/pdfs
@@ -58,7 +59,7 @@ public class SuggesterApplication {
                     if (suggestList.isEmpty())
                         continue;
 
-                    addSuggestPage(doc, i, suggestList);
+                    suggestWriter.addSuggestPage(doc, i, suggestList);
                     // i увеличивается так как добавилась новая страница
                     i++;
                 }
@@ -66,27 +67,5 @@ public class SuggesterApplication {
         }
     }
 
-    private static void addSuggestPage(PdfDocument doc, int pageNumber, List<Suggest> suggestList) {
-        // создание новой страницы
-        var newPage = doc.addNewPage(pageNumber + 2);
 
-        // создание области редактирования
-        var rect = new Rectangle(newPage.getPageSize()).moveRight(10).moveDown(10);
-        Canvas canvas = new Canvas(newPage, rect);
-
-        Paragraph paragraph = new Paragraph("Suggestions:\n");
-        paragraph.setFontSize(25);
-
-        // добавление ссылок
-        for (Suggest suggest : suggestList) {
-            PdfLinkAnnotation annotation = new PdfLinkAnnotation(rect);
-            PdfAction action = PdfAction.createURI(suggest.getUrl());
-            annotation.setAction(action);
-            Link link = new Link(suggest.getTitle(), annotation);
-            paragraph.add(link.setUnderline());
-            paragraph.add("\n");
-        }
-        canvas.add(paragraph);
-        canvas.close();
-    }
 }

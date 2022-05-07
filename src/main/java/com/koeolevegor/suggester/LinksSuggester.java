@@ -1,20 +1,26 @@
 package com.koeolevegor.suggester;
 
+import com.koeolevegor.suggester.exception.NotConfigureLinksSuggester;
 import com.koeolevegor.suggester.exception.WrongLinksFormatException;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
+@NoArgsConstructor
 public class LinksSuggester {
 
     // key word to Suggest
     private final Map<String, Suggest> suggests = new HashMap<>();
     private final Pattern urlPattern =
             Pattern.compile("(http://?|https://?|ftp://?|file://?)(www.)?[a-zA-Z][a-zA-Z0-9]+[.][a-zA-Z][a-zA-Z]+[a-zA-Z0-9/+&@#$^%=~_|]+");
+    private boolean isConfigure = false;
 
-    public LinksSuggester(File file) throws IOException, WrongLinksFormatException {
+    public void configure(File file) throws IOException, WrongLinksFormatException {
         try(BufferedReader br = new BufferedReader(new FileReader(file))) {
             String configLine;
             while (true) {
@@ -51,6 +57,8 @@ public class LinksSuggester {
                                 .url(url).build());
             }
         }
+
+        isConfigure = true;
     }
 
     // проверка URL на корректность
@@ -61,6 +69,9 @@ public class LinksSuggester {
     }
 
     public List<Suggest> suggest(String text) {
+        if (!isConfigure) {
+            throw new NotConfigureLinksSuggester("please call the \"configure(File file)\" method");
+        }
         Set<Suggest> resultSet = new HashSet<>();
         String[] words = text.toLowerCase(Locale.ROOT).split("[\s\t,.:;!?\"'()]+");
         for (String word : words) {
