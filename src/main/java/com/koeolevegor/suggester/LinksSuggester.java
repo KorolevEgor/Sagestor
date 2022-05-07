@@ -1,3 +1,7 @@
+package com.koeolevegor.suggester;
+
+import com.koeolevegor.suggester.exception.WrongLinksFormatException;
+
 import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -7,7 +11,7 @@ public class LinksSuggester {
 
     // key word to Suggest
     private final Map<String, Suggest> suggests = new HashMap<>();
-    private Pattern urlPattern =
+    private final Pattern urlPattern =
             Pattern.compile("(http://?|https://?|ftp://?|file://?)(www.)?[a-zA-Z][a-zA-Z0-9]+[.][a-zA-Z][a-zA-Z]+[a-zA-Z0-9/+&@#$^%=~_|]+");
 
     public LinksSuggester(File file) throws IOException, WrongLinksFormatException {

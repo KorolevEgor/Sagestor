@@ -1,3 +1,5 @@
+package com.koeolevegor.suggester;
+
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
@@ -8,15 +10,24 @@ import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.element.Link;
 import com.itextpdf.layout.element.Paragraph;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-public class Main {
+@SpringBootApplication
+public class SuggesterApplication {
     private static String pathnameOut = "data/pdfs/";
     private static String pathnameIn = "data/converted/";
     private static String pathnameConfig = "data/config";
+
+    @Autowired
+    private static ApplicationContext context;
 
     public static void main(String[] args) throws Exception {
         if (args.length == 3) {
@@ -24,7 +35,11 @@ public class Main {
             pathnameOut = args[1];
             pathnameIn = args[2];
         }
+        SpringApplication.run(SuggesterApplication.class);
+        runSuggester(pathnameConfig);
+    }
 
+    private static void runSuggester(String pathnameConfig) throws IOException {
         LinksSuggester linksSuggester = new LinksSuggester(new File(pathnameConfig));
 
         File dir = new File(pathnameOut);
