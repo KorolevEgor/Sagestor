@@ -27,8 +27,7 @@ public class LoggerAspect {
         StringBuilder log = new StringBuilder();
         log
                 .append("Filename: ").append(doc.getDocumentInfo().getTitle()).append('\n')
-                .append("Page number: ").append(pageNumber/2 + 1).append('\n')
-                .append("*************************************************************************************");
+                .append("Page number: ").append(pageNumber/2 + 1);
         System.out.println(log);
     }
 
@@ -38,6 +37,7 @@ public class LoggerAspect {
 
         StringBuilder log = new StringBuilder();
         log
+                .append("*************************************************************************************\n")
                 .append('[').append(new Date()).append(']').append('\n')
                 .append("Suggests: ")
                 .append(suggestList.toString());
