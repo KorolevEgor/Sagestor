@@ -10,15 +10,23 @@ import com.itextpdf.layout.element.Link;
 import com.itextpdf.layout.element.Paragraph;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class Main {
     private static String pathnameOut = "data/pdfs/";
     private static String pathnameIn = "data/converted/";
+    private static String pathnameConfig = "data/config";
 
     public static void main(String[] args) throws Exception {
-        LinksSuggester linksSuggester = new LinksSuggester(new File("data/config"));
+        if (args.length == 3) {
+            pathnameConfig = args[0];
+            pathnameOut = args[1];
+            pathnameIn = args[2];
+        }
+
+        LinksSuggester linksSuggester = new LinksSuggester(new File(pathnameConfig));
 
         File dir = new File(pathnameOut);
         // обход pdf в data/pdfs
