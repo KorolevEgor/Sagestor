@@ -59,7 +59,7 @@ public class LinksSuggester {
                 resultSet.add(suggests.get(word));
             }
         }
-        System.out.println(suggests);
+//        System.out.println(suggests);
         return resultSet.stream().toList();
     }
 }
