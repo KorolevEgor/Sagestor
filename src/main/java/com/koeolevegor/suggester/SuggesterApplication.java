@@ -11,8 +11,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @SpringBootApplication
 public class SuggesterApplication {
@@ -46,6 +45,7 @@ public class SuggesterApplication {
         File dir = new File(pathnameOut);
         // обход pdf в data/pdfs
         for (File fileIn : Objects.requireNonNull(dir.listFiles())) {
+            Set<Suggest> globalSuggestList = new HashSet<>();
             // открытие (или создание) файла на запись
             File fileOut = new File(pathnameIn + fileIn.getName());
 
@@ -59,7 +59,19 @@ public class SuggesterApplication {
                     if (suggestList.isEmpty())
                         continue;
 
-                    suggestWriter.addSuggestPage(doc, i, suggestList);
+                    List<Suggest> finalSuggestList = new ArrayList<>();
+                    for (Suggest suggest : suggestList) {
+                        if (!globalSuggestList.contains(suggest)) {
+                            finalSuggestList.add(suggest);
+                            globalSuggestList.add(suggest);
+                        }
+                    }
+                    globalSuggestList.addAll(finalSuggestList);
+
+                    if (finalSuggestList.isEmpty())
+                        continue;
+
+                    suggestWriter.addSuggestPage(doc, i, finalSuggestList);
                     // i увеличивается так как добавилась новая страница
                     i++;
                 }

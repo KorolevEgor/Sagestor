@@ -1,7 +1,6 @@
 package com.koeolevegor.suggester.aspect;
 
 import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfName;
 import com.koeolevegor.suggester.Suggest;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
