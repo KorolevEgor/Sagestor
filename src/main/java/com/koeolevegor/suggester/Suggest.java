@@ -1,14 +1,12 @@
 package com.koeolevegor.suggester;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @ToString
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode
 public class Suggest {
     private final String keyWord;
     private final String title;

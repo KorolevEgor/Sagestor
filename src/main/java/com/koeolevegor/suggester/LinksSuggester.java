@@ -45,7 +45,9 @@ public class LinksSuggester {
                 // формирование заголовка из промежуточных слов (первое слово - ключевое слово, последнее - ссылка)
                 StringBuilder titleSB = new StringBuilder();
                 for (int i = 1; i < words.size() - 1; ++i) {
-                    titleSB.append(words.get(i)).append(' ');
+                    titleSB.append(words.get(i));
+                    if (i != words.size() -2)
+                        titleSB.append(' ');
                 }
 
                 String keyWord = words.get(0).toLowerCase(Locale.ROOT);
